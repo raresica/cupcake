@@ -4,7 +4,7 @@ package Servlets;
  * Created by Rares on 30-May-17.
  */
 import Model.User;
-import Utils.DBUtils;
+import Utils.DbAccessLayer;
 import Utils.MyUtils;
 
 import java.io.IOException;
@@ -43,10 +43,9 @@ public class DoLoginServlet extends HttpServlet {
             hasError = true;
             errorString = "Required username and password!";
         } else {
-            Connection conn = MyUtils.getStoredConnection(request);
             try {
 
-                user = DBUtils.findUser(conn, userName, password);
+                user = DbAccessLayer.findUser(userName, password);
 
                 if (user == null) {
                     hasError = true;
@@ -59,7 +58,7 @@ public class DoLoginServlet extends HttpServlet {
             }
         }
 
-        // If error, forward to /WEB-INF/views/login.jsp
+        // If error, forward to index
         if (hasError) {
             user = new User();
             user.setUsername(userName);
@@ -71,7 +70,7 @@ public class DoLoginServlet extends HttpServlet {
 
             // Forward to /WEB-INF/views/login.jsp
             RequestDispatcher dispatcher //
-                    = this.getServletContext().getRequestDispatcher("/WEB-INF/views/loginView.jsp");
+                    = this.getServletContext().getRequestDispatcher("/login.jsp");
 
             dispatcher.forward(request, response);
         }
@@ -80,14 +79,9 @@ public class DoLoginServlet extends HttpServlet {
         // Store user information in Session
         // And redirect to userInfo page.
         else {
-            HttpSession session = request.getSession();
-            MyUtils.storeLoginedUser(session, user);
-
-            // If user checked "Remember me".
-
 
             // Redirect to userInfo page.
-            response.sendRedirect(request.getContextPath() + "/userInfo");
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
         }
     }
 
